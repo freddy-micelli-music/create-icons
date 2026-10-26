@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>Create Icons</string>
+	<key>CFBundleIdentifier</key>
+	<string>fr.createicons.mac</string>
+	<key>CFBundleName</key>
+	<string>Create Icons</string>
+	<key>CFBundleDisplayName</key>
+	<string>Create Icons</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.11</string>
+	<key>CFBundleVersion</key>
+	<string>12</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>fr</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>fr</string>
+		<string>en</string>
+		<string>es</string>
+		<string>de</string>
+		<string>it</string>
+	</array>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Create Icons exporte vos icônes sur le Bureau.</string>
+</dict>
+</plist>

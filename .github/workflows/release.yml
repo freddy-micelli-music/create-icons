@@ -1,0 +1,47 @@
+name: Prepare draft release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build universal macOS application
+        run: ./Build.command
+      - name: Verify application and archive
+        run: python3 Tools/VerifyRelease.py
+      - name: Prepare versioned assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' Info.plist)
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          ASSET="Create-Icons-${VERSION}.zip"
+          cp 'build/Create Icons.zip' "build/$ASSET"
+          (cd build && shasum -a 256 "$ASSET" > SHA256SUMS.txt)
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "RELEASE_ASSET=$ASSET" >> "$GITHUB_ENV"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "v$RELEASE_VERSION" \
+            "build/$RELEASE_ASSET" build/SHA256SUMS.txt \
+            --target "$GITHUB_SHA" \
+            --draft \
+            --title "Create Icons $RELEASE_VERSION" \
+            --notes-file docs/RELEASE_NOTES.md

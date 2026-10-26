@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build universal macOS application
+        run: ./Build.command
+      - name: Verify application and archive
+        run: python3 Tools/VerifyRelease.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Create-Icons-macOS-universal
+          path: build/Create Icons.zip
+          if-no-files-found: error
+          retention-days: 14

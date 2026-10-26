@@ -1,6 +1,6 @@
 # Mettre le projet sur GitHub
 
-Le nom recommandé est **create-icons**. Le dépôt local est prêt ; aucun dépôt distant n’a encore été créé par cette préparation.
+Le dépôt officiel est [freddy-micelli-music/create-icons](https://github.com/freddy-micelli-music/create-icons). Les instructions ci-dessous décrivent aussi la publication d’une copie ou d’un fork.
 
 ## Avec GitHub Desktop
 
@@ -17,11 +17,11 @@ L’archive « GitHub » préparée inclut l’historique Git local initial. Apr
 Créer d’abord un dépôt vide sur GitHub, puis utiliser son URL réelle :
 
 ```sh
-git remote add origin 'https://github.com/VOTRE-COMPTE/create-icons.git'
+git remote add origin 'https://github.com/freddy-micelli-music/create-icons.git'
 git push -u origin main
 ```
 
-L’URL ci-dessus est un exemple à remplacer. Ne pas créer de README distant supplémentaire au moment de créer le dépôt vide.
+Pour un fork, remplacer cette URL par celle de votre dépôt. Ne pas créer de README distant supplémentaire au moment de créer un dépôt vide.
 
 ## Ce qui doit être publié
 

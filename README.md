@@ -37,7 +37,9 @@ Chaque export reçoit un nom unique. Le bouton dossier montre le dernier résult
 
 ## Télécharger l’application
 
-Une fois la première release publiée, ouvrir la rubrique **Releases** du dépôt et télécharger `Create-Icons-1.0.11.zip` dans **Assets**. Le ZIP « Source code » généré par GitHub contient les sources, pas l’application compilée.
+[**Télécharger Create Icons 1.0.11 pour Mac**](https://github.com/freddy-micelli-music/create-icons/releases/download/v1.0.11/Create-Icons-1.0.11.zip)
+
+[Voir toutes les releases](https://github.com/freddy-micelli-music/create-icons/releases). Le ZIP « Source code » généré par GitHub contient les sources, pas l’application compilée.
 
 Extraire l’archive puis placer **Create Icons.app** dans le dossier Applications.
 

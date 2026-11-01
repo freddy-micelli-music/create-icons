@@ -33,7 +33,7 @@ for style in styles:
 for name in ['AppIcon.icns', 'Credits.rtf']:
     assert (contents / 'Resources' / name).read_bytes() == (root / 'Resources' / name).read_bytes(), name
 credits = subprocess.check_output(['textutil', '-convert', 'html', '-stdout', str(contents / 'Resources' / 'Credits.rtf')], text=True)
-assert 'mailto:contact@seeview-pro.com' in credits and 'Email :' in credits
+assert 'mailto:contact@backtotheapp.com' in credits and 'Email :' in credits and '2027 - backtotheapp.com' in credits
 
 archive = root / 'build' / 'Create Icons.zip'
 with zipfile.ZipFile(archive) as package:

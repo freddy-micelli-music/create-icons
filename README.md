@@ -4,7 +4,7 @@
 
 Application Mac de création d’icônes à partir de photos et d’images, par glisser-déposer.
 
-**Version : 1.0.11 · macOS 14 ou ultérieur · Intel et Apple Silicon**
+**Version : 1.0.13 · macOS 14 ou ultérieur · Intel et Apple Silicon**
 
 Réalisation : **2027 - backtotheapp.com**<br>
 Contact : [contact@backtotheapp.com](mailto:contact@backtotheapp.com)<br>
@@ -37,7 +37,7 @@ Chaque export reçoit un nom unique. Le bouton dossier montre le dernier résult
 
 ## Télécharger l’application
 
-[**Télécharger Create Icons 1.0.11 pour Mac**](https://github.com/freddy-micelli-music/create-icons/releases/download/v1.0.11/Create-Icons-1.0.11.zip)
+[**Télécharger Create Icons 1.0.13 pour Mac**](https://github.com/freddy-micelli-music/create-icons/releases/download/v1.0.13/Create-Icons-1.0.13.zip)
 
 [Voir toutes les releases](https://github.com/freddy-micelli-music/create-icons/releases). Le ZIP « Source code » généré par GitHub contient les sources, pas l’application compilée.
 

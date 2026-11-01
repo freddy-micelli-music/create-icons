@@ -1,5 +1,9 @@
 # Historique
 
+## 1.0.13
+
+Nouvelle identité dans À propos : Réalisation : 2027 - backtotheapp.com et lien Email vers contact@backtotheapp.com.
+
 ## 1.0.11
 
 Remplacement du menu Aide par Vérifier les mises à jour, avec la version installée et un message d’attente du futur service.

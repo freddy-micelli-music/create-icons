@@ -6,13 +6,12 @@ Application Mac de création d’icônes à partir de photos et d’images, par 
 
 **Version : 1.0.11 · macOS 14 ou ultérieur · Intel et Apple Silicon**
 
-Réalisation : **Frédéric Fantino**<br>
-Contact : [contact@seeview-pro.com](mailto:contact@seeview-pro.com)<br>
-2027 — Seeview-pro
+Réalisation : **2027 - backtotheapp.com**<br>
+Contact : [contact@backtotheapp.com](mailto:contact@backtotheapp.com)<br>
+SiSite : https://createicons.backtotheapp.com
 
 ## Utilisation
-
-1. Ouvrir **Create Icons.app**.
+. Ouvrir **Create Icons.app**.
 2. Choisir un style : son aperçu s’affiche en grand avant tout import.
 3. Déposer une image dans l’aperçu, ou cliquer sur **Choisir une image**.
 4. Ajuster le cadrage et choisir le format.

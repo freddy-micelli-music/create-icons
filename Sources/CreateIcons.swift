@@ -565,6 +565,11 @@ func exportImage(_ image:NSImage, format:String, to base:URL) throws -> URL {
  return folder
 }
 
+func applyIcon(_ icon:NSImage?,to url:URL)->Bool {
+ let access=url.startAccessingSecurityScopedResource();defer { if access { url.stopAccessingSecurityScopedResource() } }
+ return NSWorkspace.shared.setIcon(icon,forFile:url.path,options:[])
+}
+
 @MainActor final class Model:ObservableObject {
  @Published var image:NSImage?
  @Published var originals:[(URL,NSImage)] = []
@@ -602,7 +607,9 @@ func exportImage(_ image:NSImage, format:String, to base:URL) throws -> URL {
  func label(_ style:String)->String { (language == "fr" ? frenchStyles : localizedStyles[language] ?? styles)[styles.firstIndex(of:style) ?? 0] }
  var preview:NSImage? { image.map { render($0,style:style,settings:settings) } }
  var displayPreview:NSImage { render(image ?? exampleImage,style:style,settings:settings) }
- func load(_ urls:[URL]) { let valid=urls.compactMap { url -> (URL,NSImage)? in let image=NSImage(contentsOf:url) ?? NSWorkspace.shared.icon(forFile:url.path); guard image.size.width>0,image.size.height>0 else { return nil }; return (url,image) }; guard let first=valid.first else { status="⚠️ "+t("empty"); return }; originals=valid; image=first.1; name=first.0.deletingPathExtension().lastPathComponent; settings=Settings(); status="\(valid.count) image(s)" }
+ func load(_ urls:[URL]) { let valid=urls.compactMap { url -> (URL,NSImage)? in
+  let access=url.startAccessingSecurityScopedResource();defer { if access { url.stopAccessingSecurityScopedResource() } }
+  let image=(try? Data(contentsOf:url)).flatMap { NSImage(data:$0) } ?? NSWorkspace.shared.icon(forFile:url.path); guard image.size.width>0,image.size.height>0 else { return nil }; return (url,image) }; guard let first=valid.first else { status="⚠️ "+t("empty"); return }; originals=valid; image=first.1; name=first.0.deletingPathExtension().lastPathComponent; settings=Settings(); status="\(valid.count) image(s)" }
  func choose() { let p=NSOpenPanel(); p.allowedContentTypes=[.image,.pdf]; p.allowsMultipleSelection=true; if p.runModal() == .OK { load(p.urls) } }
  func drop(_ providers:[NSItemProvider])->Bool {
   let urls=providers.filter { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }
@@ -610,7 +617,7 @@ func exportImage(_ image:NSImage, format:String, to base:URL) throws -> URL {
    for p in urls { group.enter(); p.loadItem(forTypeIdentifier:UTType.fileURL.identifier,options:nil) { data,_ in defer { group.leave() }; let url=(data as? URL) ?? (data as? Data).flatMap { URL(dataRepresentation:$0,relativeTo:nil) }; if let url=url { lock.lock(); result.append(url); lock.unlock() } } }
    group.notify(queue:.main) {
     let folders=result.filter { (try? $0.resourceValues(forKeys:[.isDirectoryKey]).isDirectory) == true }
-    if self.image != nil && folders.count == result.count, let icon=self.preview { let ok=folders.allSatisfy { NSWorkspace.shared.setIcon(icon,forFile:$0.path,options:[]) }; self.status=ok ? "✓" : "⚠️" } else { self.load(result) }
+    if self.image != nil && folders.count == result.count, let icon=self.preview { let ok=folders.allSatisfy { applyIcon(icon,to:$0) }; self.status=ok ? "✓" : "⚠️" } else { self.load(result) }
    }; return true
   }
   if let p=providers.first(where:{$0.canLoadObject(ofClass:NSImage.self)}) { _=p.loadObject(ofClass:NSImage.self) { object,_ in if let image=object as? NSImage { DispatchQueue.main.async { self.image=image; self.originals=[]; self.name="Create Icon" } } }; return true }; return false
@@ -624,10 +631,36 @@ func exportImage(_ image:NSImage, format:String, to base:URL) throws -> URL {
    catch { DispatchQueue.main.async { self.busy=false; self.status=error.localizedDescription } }
   }
  }
+ #if APPSTORE
+ private func authorizedExportDirectory()->URL? {
+  let key="desktopExportBookmark"
+  if let bookmark=UserDefaults.standard.data(forKey:key) {
+   var stale=false
+   if let url=try? URL(resolvingBookmarkData:bookmark,options:[.withSecurityScope],relativeTo:nil,bookmarkDataIsStale:&stale),url.startAccessingSecurityScopedResource() {
+    if stale,let refreshed=try? url.bookmarkData(options:[.withSecurityScope],includingResourceValuesForKeys:nil,relativeTo:nil) { UserDefaults.standard.set(refreshed,forKey:key) }
+    url.stopAccessingSecurityScopedResource();return url
+   }
+  }
+  let panel=NSOpenPanel();panel.canChooseDirectories=true;panel.canChooseFiles=false;panel.allowsMultipleSelection=false
+  panel.directoryURL=FileManager.default.urls(for:.desktopDirectory,in:.userDomainMask).first
+  let labels:[String:(String,String)] = ["fr":("Autoriser l’export","Choisissez votre Bureau pour autoriser Create Icons à y enregistrer vos icônes."),"en":("Allow export","Choose your Desktop to let Create Icons save your icons there."),"es":("Permitir exportación","Elige tu Escritorio para permitir que Create Icons guarde los iconos allí."),"de":("Export erlauben","Wähle deinen Schreibtisch, damit Create Icons dort Symbole speichern darf."),"it":("Consenti esportazione","Scegli la Scrivania per consentire a Create Icons di salvare le icone.")]
+  let label=labels[language] ?? labels["en"]!;panel.prompt=label.0;panel.message=label.1
+  guard panel.runModal() == .OK,let url=panel.url else { return nil }
+  if let bookmark=try? url.bookmarkData(options:[.withSecurityScope],includingResourceValuesForKeys:nil,relativeTo:nil) { UserDefaults.standard.set(bookmark,forKey:key) }
+  return url
+ }
+ #endif
  func export(to directory:URL?=nil) {
-  guard let image=image else { return }; busy=true
+  guard let image=image else { return }
+  #if APPSTORE
+  guard let exportDirectory=directory ?? authorizedExportDirectory() else { return }
+  let access=exportDirectory.startAccessingSecurityScopedResource();defer { if access { exportDirectory.stopAccessingSecurityScopedResource() } }
+  #else
+  let exportDirectory=directory ?? FileManager.default.urls(for:.desktopDirectory,in:.userDomainMask)[0]
+  #endif
+  busy=true
   do {
-   let desktop=directory ?? FileManager.default.urls(for:.desktopDirectory,in:.userDomainMask)[0]
+   let desktop=exportDirectory
    let cleaned=name.components(separatedBy:CharacterSet(charactersIn:"/:\\\n")).joined(separator:"-"); let safe=cleaned.isEmpty ? "Create Icon" : cleaned
    let root=desktop.appendingPathComponent(safe+" - "+UUID().uuidString.prefix(6)); let multi=all || batch
    if multi { try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true) }
@@ -637,7 +670,7 @@ func exportImage(_ image:NSImage, format:String, to base:URL) throws -> URL {
    lastURL=multi ? root : last; status="✓ "+t("exported")
   } catch { status="⚠️ "+error.localizedDescription }; busy=false
  }
- func apply(restore:Bool=false) { guard restore || preview != nil else { return }; let p=NSOpenPanel(); p.canChooseDirectories=true; p.canChooseFiles=true; p.allowsMultipleSelection=true; if p.runModal() == .OK { let icon=restore ? nil : preview; let ok=p.urls.allSatisfy { NSWorkspace.shared.setIcon(icon,forFile:$0.path,options:[]) }; status=ok ? "✓" : "⚠️" } }
+ func apply(restore:Bool=false) { guard restore || preview != nil else { return }; let p=NSOpenPanel(); p.canChooseDirectories=true; p.canChooseFiles=true; p.allowsMultipleSelection=true; if p.runModal() == .OK { let icon=restore ? nil : preview; let ok=p.urls.allSatisfy { applyIcon(icon,to:$0) }; status=ok ? "✓" : "⚠️" } }
 }
 
 struct ContentView:View {
@@ -735,7 +768,11 @@ struct UpdateMenu:Commands {
   CommandGroup(replacing:.help) {}
   CommandMenu(text("menu")) {
    Button(text("check")) {
+    #if APPSTORE
+    NSWorkspace.shared.open(URL(string:"macappstore://showUpdatesPage")!)
+    #else
     let alert=NSAlert();alert.messageText=text("title");alert.informativeText=text("version")+" : "+version+"\n\n"+text("pending");alert.addButton(withTitle:text("close"));alert.runModal()
+    #endif
    }
    Divider()
    Text(text("version")+" : "+version)

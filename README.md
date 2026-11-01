@@ -76,4 +76,4 @@ Le détourage dépend de la détection du sujet par Apple Vision. L’export par
 
 ## Droits
 
-© 2027 Frédéric Fantino — Seeview-pro. Tous droits réservés. Aucune licence open source n’a été choisie pour ce projet.
+© 2027 backtotheapp.com. Tous droits réservés. Aucune licence open source n’a été choisie pour ce projet.
